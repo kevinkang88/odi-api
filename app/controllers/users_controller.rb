@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-  skip_before_action :authenticate_request, only: %i[create_secret, authorize_device]
+  skip_before_action :authenticate_request, :only => [:create_secret, :authorize_device]
 
   def create_secret
     command = SecretGenerator.call(ENV["APP_ANSWER_KEY"], ENV["APP_ID"])
@@ -8,14 +8,14 @@ class UsersController < ApplicationController
     if command.success?
       render json: {
         access_token: command.result,
-        message: '??'
+        message '??'
       }
     end
   end
 
   def authorize_device
     device_uuid = user_params[:device_uuid]
-    secret = system_params[:key]
+    secret = user_params[:key]
     authenticate device_uuid, secret
   end
 
@@ -42,13 +42,7 @@ class UsersController < ApplicationController
 
   def user_params
     params.permit(
-       :device_uuid
-     )
-   end
-
-   def system_params
-     params.permit(
-       :key
+       [:device_uuid, :key]
      )
    end
 end
